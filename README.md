@@ -10,6 +10,7 @@ facial-landmarks-estimator-on-tao-toolkit は、NVIDIA TAO TOOLKIT を用いて 
 
 ## FacialLandmarksEstimationについて
 FacialLandmarksEstimation は、画像内の顔の主なランドマークを検出し、顔の形状予測を行うAIモデルです。  
+FacialLandmarksEstimation は、特徴抽出にRecombinator Networksを使用しています。
 
 ## 動作手順
 
@@ -28,3 +29,14 @@ tao-convert:
 
 ## engineファイルについて
 engineファイルである faciallandmarks.engine は、[facial-landmarks-estimator-on-deepstream](https://github.com/latonaio/facial-landmarks-estimator-on-deepstream)と共通のファイルであり、本レポジトリで作成した engineファイルを、当該リポジトリで使用しています。  
+
+## 演算について
+本レポジトリでは、ニューラルネットワークのモデルにおいて、エッジコンピューティング環境での演算スループット効率を高めるため、FP16(半精度浮動小数点)を使用しています。  
+浮動小数点値の変更は、Makefileの以下の部分を変更し、engineファイルを生成してください。
+
+```
+tao-convert:
+	docker exec -it faciallandmarks-tao-toolkit tao-converter -k nvidia_tlt -p input_face_images,1x1x80x80,32x1x80x80,32x1x80x80 \
+		-t fp16 -d 1,80,80 -e /app/src/faciallandmarks.engine /app/src/faciallandmarks.etlt 
+
+```
